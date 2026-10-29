@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>One Unified Representation</title>
+  <meta name="description" content="One Unified Representation: Resolving the Appearance-Semantics Dilemma via Structural Regularization (NeurIPS 2026).">
+
+  <!-- 社交平台分享卡片（Twitter / Slack 等） -->
+  <meta property="og:title" content="One Unified Representation: Resolving the Appearance-Semantics Dilemma via Structural Regularization">
+  <meta property="og:description" content="SSR adapts a semantic ViT encoder for high-fidelity reconstruction without losing its semantics, giving one latent space for reconstruction, perception and generation.">
+  <meta property="og:image" content="static/images/01_contrast.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="static/images/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/style.css">
+  <script>
+    try {
+      var saved = localStorage.getItem("theme");
+      if (saved === "light" || saved === "dark") document.documentElement.setAttribute("data-theme", saved);
+    } catch (e) {}
+  </script>
+</head>
+<body>
+
+<!-- 深色 / 浅色切换 -->
+<button class="theme-btn" id="theme-btn" type="button" aria-label="Switch to dark theme">
+  <svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+  <svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg>
+</button>
+
+<main>
+
+  <!-- =====================================================================
+       标题区：标题、作者、机构、链接、一句话导语、关键数字
+       ================================================================== -->
+  <header class="hero" id="top">
+    <div class="container">
+
+      <!-- 项目 logo（可选）：做好后取消注释
+      <figure class="projlogo">
+        <img src="static/images/logo.png" alt="SSR logo">
+      </figure>
+      -->
+
+      <h1 class="title">
+        <span class="wordmark">One Unified Representation</span><span class="tsub">: Resolving the Appearance&#8209;Semantics Dilemma via Structural Regularization</span>
+      </h1>
+
+      <!-- 作者：有个人主页的用 <a href>（显示为蓝色），没有的用 <span class="nm">；sup 数字对应机构编号 -->
+      <p class="authors">
+        <span class="au"><span class="nm">Ruiqi Yang</span><sup>1*&dagger;</sup></span>
+        <span class="au"><span class="nm">Fei Zhou</span><sup>2*&Dagger;</sup></span>
+        <span class="au"><span class="nm">Yi Zhang</span><sup>3</sup></span>
+        <span class="au"><span class="nm">Liang Li</span><sup>3</sup></span>
+        <span class="au"><span class="nm">Xiangyu Yue</span><sup>2&#9993;</sup></span>
+      </p>
+      <p class="equal">
+        <span><sup>*</sup>Equal contribution.</span>
+        <span><sup>&dagger;</sup>Work done during an internship.</span>
+        <span><sup>&Dagger;</sup>Project lead.</span>
+        <span><sup>&#9993;</sup>Corresponding author.</span>
+      </p>
+
+      <p class="orgs">
+        <span class="org"><sup>1</sup><img src="static/images/logos/zju.png" alt=""><span class="org-name">Zhejiang University</span></span>
+        <span class="org"><sup>2</sup><img class="logo-lg" src="static/images/logos/cuhk.png" alt=""><span class="org-name">MMLab, The Chinese University of Hong Kong</span></span>
+        <span class="org"><sup>3</sup><img class="logo-wide" src="static/images/logos/cmri.png" alt=""><span class="org-name">China Mobile Research Institute, Beijing, China</span></span>
+      </p>
+
+      <!-- TODO: 替换论文 PDF 链接 -->
+      <p class="hero-links">
+        <a class="btn btn-solid" href="https://arxiv.org/pdf/xxxx.xxxxx" target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" stroke-linejoin="round"/><path d="M14 3v5h5M9 13h6M9 17h4" stroke-linecap="round"/></svg>Paper
+        </a>
+        <a class="btn" href="https://github.com/reid-yeung/SSR" target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.8.1-.8 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.4 3.6 1.1.1-.8.4-1.4.8-1.7-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.7-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>Code
+        </a>
+        <a class="btn" href="#citation">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 5v14M10 8h9M10 12h9M10 16h5" stroke-linecap="round"/></svg>Citation
+        </a>
+      </p>
+
+      <p class="lede">
+        Can a <em>single</em> representation space unify
+        <span class="kw-b">reconstruction</span>, <span class="kw-a">perception</span>
+        and <span class="kw-m">generation</span> without sacrificing any?
+      </p>
+      <p class="hero-body">
+        We propose <strong>Semantic Structure Regularization (SSR)</strong>, which lets a semantic ViT encoder
+        learn appearance details for reconstruction while keeping its semantic structure intact.
+      </p>
+
+      <!-- 关键数字：三格分别对应导语里的三个任务 -->
+      <dl class="stats">
+        <div class="stat t-recon">
+          <dt>Reconstruction</dt>
+          <dd><b>0.38</b> rFID</dd>
+          <dd class="stat-note">35.6% lower than RAE</dd>
+        </div>
+        <div class="stat t-percep">
+          <dt>Perception</dt>
+          <dd><b>83.8</b> linear probe</dd>
+          <dd class="stat-note">on par with DINOv3</dd>
+        </div>
+        <div class="stat t-gen">
+          <dt>Generation</dt>
+          <dd><b>1.63</b> gFID</dd>
+          <dd class="stat-note">80 epochs, with guidance</dd>
+        </div>
+      </dl>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       摘要
+       ================================================================== -->
+  <section class="sec" id="abstract">
+    <div class="container narrow">
+      <h2 class="part-head">Abstract</h2>
+      <div class="prose">
+        <p>
+          The Representation Autoencoder (RAE) shows that a frozen high-dimensional semantic ViT representation enables both
+          image reconstruction and DiT-based generation. However, RAE's semantic-only representation lacks appearance details,
+          yielding suboptimal reconstruction. Full fine-tuning the encoder with reconstruction loss induces catastrophic
+          semantic collapse: the encoder overfits to appearance, loses semantic discriminability, and cripples generation.
+          This failure arises because the reconstruction loss imposes an appearance prior that erodes semantic structure.
+        </p>
+        <p>
+          To resolve this conflict, we propose <em><strong>S</strong>emantic <strong>S</strong>tructure
+          <strong>R</strong>egularization</em> (<strong>SSR</strong>). SSR builds on self-distillation, using a learnable
+          student and a frozen teacher that retains the original semantics. In addition to standard latent alignment, which
+          forces the student's representation to match the teacher's, we introduce two complementary regularizers that prevent
+          appearance overfitting from corrupting semantic structure. First, spatial self-similarity distillation forces the
+          student to reproduce the teacher's patch-wise relational patterns. Invariant to appearance changes, this relational
+          signature anchors high-order semantics and prevents the sacrifice of structure for pixel fidelity. Second,
+          structure-anchored alignment decouples structure from appearance. Using a frequency-domain transform, we extract a
+          high-frequency structural map (edges, boundaries) from each image while discarding low-frequency appearance. The
+          teacher's representation of this structural map then regularizes the student's representation of the original image.
+        </p>
+        <p>
+          Consequently, the student learns appearance details from the reconstruction loss without penalty, where the
+          regularization enforces only structural consistency and enables pixel-level encoding without semantic drift. The
+          result is a unified representation that excels at high-fidelity reconstruction, discriminative perception, and
+          efficient DiT-based generation. Our work provides a principled path toward a single semantic space bridging
+          perception and generation, challenging the classic dichotomy.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       核心结论
+       ================================================================== -->
+  <section class="sec" id="takeaways">
+    <div class="container narrow">
+      <h2 class="part-head">Key takeaways</h2>
+      <ul class="takeaways">
+        <li><b>Reconstruction and semantics conflict.</b> Naively fine-tuning the encoder for reconstruction lowers rFID to
+          0.21, but linear-probe accuracy drops to 82.5 and gFID worsens to 2.74: the reconstruction loss erodes the
+          relational geometry of semantic features.</li>
+        <li><b>Preserve relations, not feature values.</b> Matching the teacher's patch-wise affinity matrix keeps object layout
+          and scene organization, while leaving room to encode appearance in complementary feature directions.</li>
+        <li><b>High frequencies carry structure.</b> The teacher's encoding of a high-pass structural map gives the student an
+          explicit structural target that does not penalize appearance.</li>
+        <li><b>One latent space serves all three tasks.</b> SSR lowers RAE's rFID from 0.59 to 0.38, keeps DINOv3's 83.8%
+          linear-probe accuracy, and reaches gFID 1.63 with guidance in 80 epochs.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       方法
+       ================================================================== -->
+  <section class="sec left" id="method">
+    <div class="container">
+      <h2 class="part-head">Method</h2>
+      <figure class="fig">
+        <img src="static/images/01_contrast.png" alt="Comparison of autoencoder paradigms">
+        <figcaption>
+          <b>Comparison of autoencoder paradigms.</b> (a) VAE jointly trains the encoder and pixel decoder for reconstruction,
+          yielding good reconstruction but weak semantics. (b) RAE uses a frozen representation encoder, preserving semantics
+          but limiting reconstruction fidelity. (c) SSR adapts the encoder with semantic alignment from a frozen teacher.
+        </figcaption>
+      </figure>
+      <figure class="fig">
+        <img src="static/images/02_method.png" alt="SSR method overview">
+        <figcaption>
+          <b>Encoder adaptation under structure-preserving distillation.</b> A frozen teacher encoder provides two structural
+          targets: the original-image latent and the high-pass structural latent. The student encoder, adapted via LoRA, is
+          constrained by structure losses to preserve relational geometry.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       实验结果：总览 + 重建 / 感知 / 生成 三个小节
+       ================================================================== -->
+  <section class="sec left" id="results">
+    <div class="container">
+      <h2 class="part-head">Results</h2>
+      <p class="sec-lede">
+        Instantiated with DINOv3-B, <strong>SSR</strong> improves reconstruction over RAE while keeping its semantic
+        discriminability, and gives better generation than both RAE and naive fine-tuning.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th rowspan="2" class="left">Model</th>
+              <th colspan="3" class="t-recon">Reconstruction</th>
+              <th colspan="4" class="t-percep">Perception</th>
+              <th colspan="4" class="t-gen">Generation</th>
+            </tr>
+            <tr>
+              <th>rFID&darr;</th><th>PSNR&uarr;</th><th>SSIM&uarr;</th>
+              <th>LP&uarr;</th><th>ADE20k&uarr;</th><th>NYU&darr;</th><th>NAVI&uarr;</th>
+              <th>gFID&darr;</th><th>IS&uarr;</th><th>Prec.&uarr;</th><th>Rec.&uarr;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="left">RAE</td><td>0.59</td><td>19.27</td><td>0.487</td><td>83.8</td><td>51.8</td><td>0.373</td><td>58.8</td><td>2.40</td><td>196.57</td><td>0.82</td><td>0.60</td></tr>
+            <tr><td class="left">Naive Fine-tune</td><td>0.21</td><td>25.92</td><td>0.761</td><td>82.5</td><td>50.9</td><td>0.425</td><td>58.0</td><td>2.74</td><td>186.16</td><td>0.78</td><td>0.62</td></tr>
+            <tr class="ours"><td class="left">SSR</td><td>0.38</td><td>22.26</td><td>0.607</td><td>83.8</td><td>51.4</td><td>0.389</td><td>58.7</td><td>2.30</td><td>201.36</td><td>0.81</td><td>0.60</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="caption">
+        <b>Overview.</b> Naive Fine-tune denotes full encoder fine-tuning with reconstruction loss and basic latent
+        distillation (&#8466;<sub>recon</sub> + &#8466;<sub>str0</sub>) only, without structural regularization.
+      </p>
+
+      <h3 class="sub-head t-recon" id="reconstruction">Reconstruction</h3>
+      <p class="sub-lede">
+        SSR reaches an rFID of <span class="k3">0.38</span> on ImageNet 256&times;256, the best among continuous-latent
+        methods, and improves PSNR by 2.99 and SSIM by 0.12 over RAE.
+      </p>
+      <div class="table-wrap narrow">
+        <table>
+          <thead>
+            <tr><th class="left">Model</th><th>Type</th><th>Ratio</th><th>rFID&darr;</th><th>PSNR&uarr;</th><th>SSIM&uarr;</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="left">LlamaGen</td><td>Discrete</td><td>16</td><td>2.19</td><td>20.79</td><td>0.675</td></tr>
+            <tr><td class="left">Show-o</td><td>Discrete</td><td>16</td><td>3.50</td><td>21.34</td><td>0.590</td></tr>
+            <tr><td class="left">TokenFlow</td><td>Discrete</td><td>16</td><td>1.37</td><td>21.41</td><td>0.687</td></tr>
+            <tr><td class="left">DualViTok</td><td>Discrete</td><td>16</td><td>1.37</td><td>22.53</td><td>0.741</td></tr>
+            <tr class="split"><td class="left">VILA-U</td><td>Discrete</td><td>16</td><td>1.80</td><td>&ndash;</td><td>&ndash;</td></tr>
+            <tr><td class="left">BLIP3o</td><td>Continuous</td><td>16</td><td>3.28</td><td>14.71</td><td>0.58</td></tr>
+            <tr><td class="left">Emu2</td><td>Continuous</td><td>14</td><td>3.27</td><td>13.49</td><td>0.423</td></tr>
+            <tr><td class="left">UniLIP</td><td>Continuous</td><td>32</td><td>0.79</td><td>22.99</td><td>0.747</td></tr>
+            <tr><td class="left">RAE</td><td>Continuous</td><td>16</td><td>0.59</td><td>19.27</td><td>0.487</td></tr>
+            <tr class="ours"><td class="left">SSR</td><td>Continuous</td><td>16</td><td>0.38<sup class="delta">&minus;0.21</sup></td><td>22.26<sup class="delta">+2.99</sup></td><td>0.607<sup class="delta">+0.12</sup></td></tr>
+            <tr><td class="left">RAE<sup>&dagger;</sup></td><td>Continuous</td><td>16</td><td>0.44</td><td>20.51</td><td>0.543</td></tr>
+            <tr class="ours"><td class="left">SSR<sup>&dagger;</sup></td><td>Continuous</td><td>16</td><td>0.29<sup class="delta">&minus;0.15</sup></td><td>23.84<sup class="delta">+3.33</sup></td><td>0.685<sup class="delta">+0.14</sup></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="caption">
+        <b>Reconstruction on ImageNet 256&times;256.</b> <sup>&dagger;</sup>No noise added to the latent.
+        <span class="delta-key">Red</span> numbers are absolute changes over the corresponding RAE baseline.
+      </p>
+
+      <h3 class="sub-head t-percep" id="perception">Perception</h3>
+      <p class="sub-lede">
+        After adaptation for reconstruction, SSR matches DINOv3 on classification and dense prediction, while naive
+        fine-tuning degrades every metric. On 10 few-shot classification datasets it also stays on par with DINOv3.
+      </p>
+      <div class="table-wrap narrow">
+        <table>
+          <thead>
+            <tr><th class="left">Model</th><th>Linear Probe&uarr;</th><th>ADE20K&uarr;</th><th>NYU&darr;</th><th>NAVI&uarr;</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="left">SigLIP 2</td><td>&ndash;</td><td>41.6</td><td>0.512</td><td>25.4</td></tr>
+            <tr><td class="left">DINOv2</td><td>83.0</td><td>48.4</td><td>0.416</td><td>56.9</td></tr>
+            <tr><td class="left">DINOv3</td><td>83.8</td><td>51.8</td><td>0.373</td><td>58.8</td></tr>
+            <tr><td class="left">Naive Fine-tune</td><td>82.5</td><td>50.9</td><td>0.425</td><td>58.0</td></tr>
+            <tr class="ours"><td class="left">SSR</td><td>83.8<sup class="delta">+1.3</sup></td><td>51.4<sup class="delta">+0.5</sup></td><td>0.389<sup class="delta">&minus;0.036</sup></td><td>58.7<sup class="delta">+0.7</sup></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="caption">
+        <b>Downstream perception.</b> ImageNet-1K linear probing (top-1), ADE20K segmentation (mIoU), NYU Depth V2 (RMSE)
+        and NAVI correspondence (recall). <span class="delta-key">Red</span> numbers are changes over Naive Fine-tune.
+      </p>
+
+      <h3 class="sub-head t-gen" id="generation">Generation</h3>
+      <p class="sub-lede">
+        A DiT-DH-XL trained for 80 epochs on SSR latents reaches gFID <span class="k3">2.30</span> without guidance and
+        <span class="k3">1.63</span> with AutoGuidance, ahead of RAE and of VAE-based latent diffusion at the same training budget.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th rowspan="2" class="left">Model</th>
+              <th rowspan="2">#Params</th>
+              <th rowspan="2">Epochs</th>
+              <th colspan="4">w/o guidance</th>
+              <th colspan="4">w/ guidance</th>
+            </tr>
+            <tr>
+              <th>gFID&darr;</th><th>IS&uarr;</th><th>Prec.&uarr;</th><th>Rec.&uarr;</th>
+              <th>gFID&darr;</th><th>IS&uarr;</th><th>Prec.&uarr;</th><th>Rec.&uarr;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="group"><td colspan="11">Pixel diffusion</td></tr>
+            <tr><td class="left">PixNerd</td><td>700M</td><td>160</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>2.15</td><td>297.0</td><td>0.79</td><td>0.59</td></tr>
+            <tr><td class="left">PixelFlow</td><td>677M</td><td>320</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>1.98</td><td>282.1</td><td>0.81</td><td>0.60</td></tr>
+            <tr><td class="left">ADM</td><td>554M</td><td>400</td><td>10.94</td><td>101.0</td><td>0.69</td><td>0.63</td><td>3.94</td><td>215.8</td><td>0.83</td><td>0.53</td></tr>
+            <tr class="group"><td colspan="11">Latent diffusion with VAE</td></tr>
+            <tr><td class="left">MaskDiT</td><td>675M</td><td>1600</td><td>5.69</td><td>177.9</td><td>0.74</td><td>0.60</td><td>2.28</td><td>276.6</td><td>0.80</td><td>0.61</td></tr>
+            <tr><td class="left">DiT</td><td>675M</td><td>1400</td><td>9.62</td><td>121.5</td><td>0.67</td><td>0.67</td><td>2.27</td><td>278.2</td><td>0.83</td><td>0.57</td></tr>
+            <tr><td class="left">SiT</td><td>675M</td><td>1400</td><td>8.61</td><td>131.7</td><td>0.68</td><td>0.67</td><td>2.06</td><td>270.3</td><td>0.82</td><td>0.59</td></tr>
+            <tr><td class="left">MDTv2</td><td>675M</td><td>1080</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>1.58</td><td>314.7</td><td>0.79</td><td>0.65</td></tr>
+            <tr><td class="left">REPA-E</td><td>675M</td><td>80</td><td>3.46</td><td>159.8</td><td>0.77</td><td>0.63</td><td>1.67</td><td>266.3</td><td>0.80</td><td>0.63</td></tr>
+            <tr><td class="left">DDT</td><td>675M</td><td>80</td><td>6.62</td><td>135.2</td><td>0.69</td><td>0.67</td><td>1.52</td><td>263.7</td><td>0.78</td><td>0.63</td></tr>
+            <tr class="group"><td colspan="11">Latent diffusion with RAE</td></tr>
+            <tr><td class="left">LV-RAE</td><td>839M</td><td>800</td><td>2.42</td><td>223.8</td><td>0.77</td><td>0.64</td><td>1.82</td><td>249.7</td><td>0.75</td><td>0.67</td></tr>
+            <tr><td class="left">RAE</td><td>839M</td><td>80</td><td>2.40</td><td>196.57</td><td>0.82</td><td>0.60</td><td>1.75</td><td>219.44</td><td>0.81</td><td>0.62</td></tr>
+            <tr><td class="left">Naive Fine-tune</td><td>839M</td><td>80</td><td>2.74</td><td>186.16</td><td>0.78</td><td>0.62</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td></tr>
+            <tr class="ours"><td class="left">SSR</td><td>839M</td><td>80</td><td>2.30</td><td>201.36</td><td>0.81</td><td>0.60</td><td>1.63</td><td>228.43</td><td>0.82</td><td>0.61</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="caption">
+        <b>Class-conditional generation on ImageNet 256&times;256.</b> Results with guidance use AutoGuidance with a guidance
+        scale of 1.42.
+      </p>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       引用
+       ================================================================== -->
+  <section class="sec left" id="citation">
+    <div class="container narrow">
+      <h2 class="part-head">Citation</h2>
+      <div class="code">
+        <div class="code-head">
+          <span class="code-lang">bibtex</span>
+          <button class="copy-btn" type="button" data-copy-target="bibtex-code">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+<!-- TODO: 论文正式收录后，用 NeurIPS 2026 proceedings（或 arXiv 页面）给出的官方 BibTeX 替换下面整段，
+     并删掉所有 TODO 字样；挂 arXiv 之前也可以先换成 arXiv 的 @article 条目 -->
+<pre><code id="bibtex-code">@inproceedings{TODO,
+  title     = {One Unified Representation: Resolving the Appearance-Semantics Dilemma via Structural Regularization},
+  author    = {Yang, Ruiqi and Zhou, Fei and Zhang, Yi and Li, Liang and Yue, Xiangyu},
+  booktitle = {TODO},
+  year      = {2026}
+}</code></pre>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <span>One Unified Representation &middot; NeurIPS 2026</span>
+  <span>Page layout inspired by <a href="https://4dcodebench.com/" target="_blank" rel="noopener">4DCodeBench</a></span>
+</footer>
+
+<!-- 左侧阅读进度导航：每个 <a> 对应一个章节，href 需与上方 section 的 id 一致 -->
+<nav class="pnav" id="pnav" aria-label="Sections">
+  <span class="pnav-track"><i class="pnav-fill"></i></span>
+  <a href="#top"><b></b><span>Overview</span></a>
+  <a href="#abstract"><b></b><span>Abstract</span></a>
+  <a href="#takeaways"><b></b><span>Key takeaways</span></a>
+  <a href="#method"><b></b><span>Method</span></a>
+  <a href="#results"><b></b><span>Results</span></a>
+  <a href="#citation"><b></b><span>Citation</span></a>
+</nav>
+
+<script src="static/js/main.js"></script>
+</body>
+</html>

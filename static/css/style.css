@@ -1,0 +1,1049 @@
+/* ==========================================================================
+   Project page template
+   配色取自论文插图：蓝 = 冻结的语义 teacher，玫瑰色 = 可训练模块 / 外观，深蓝 = loss 箭头。
+   --c-a / --c-b 是渐变两端（标题、导语关键词、左侧进度条都用它们）
+   ========================================================================== */
+
+:root {
+  --c-a: #2e75b6;           /* 论文蓝：frozen encoder / 语义 */
+  --c-b: #c0706a;           /* 论文玫瑰色：trainable 模块 / 外观（由 #cca09d 加深以保证可读） */
+  --c-m: #2f5597;           /* 论文深蓝：loss 箭头 */
+  --link: #2f5597;          /* 共同一作、链接颜色 */
+  --ok: #548235;            /* 论文绿：✓ */
+  --delta: #e12828;         /* 论文表格里的提升标注（nicered） */
+
+  --bg: #ffffff;
+  --text: #111114;
+  --text-2: #6b6b72;        /* 副标题、正文次要信息 */
+  --text-3: #9a9aa2;
+  --line: #e7e7ea;
+  --chip: #f2f2f3;          /* 浅灰按钮背景 */
+  --chip-hover: #e7e7ea;
+  --solid: #0b0b0d;         /* 黑色主按钮 */
+  --solid-text: #ffffff;
+  --code-bg: #f7f7f8;
+  --row-hi: #ebf5ff;        /* 论文表格 rowblue */
+  --fig-bg: transparent;    /* 暗色下给白底插图留白边 */
+  --fig-pad: 0px;
+  --hl-a: #b8d1ef;          /* 选中文字荧光笔：蓝端 */
+  --hl-b: #efc3be;          /* 选中文字荧光笔：玫瑰端 */
+  --hl-blend: multiply;
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --w-wide: 1120px;          /* 标题区 */
+  --w-main: 1040px;          /* Method 及之后的居左章节 */
+  --w-narrow: 780px;         /* 摘要、结论、正文行宽 */
+}
+
+/* 暗色：跟随系统；页面上若显式设置 data-theme 则以它为准 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --link: #8faadc;
+    --ok: #8fbf6f;
+    --delta: #ff7a7a;
+    --bg: #0e0e11;
+    --text: #ededf0;
+    --text-2: #a3a3ad;
+    --text-3: #6f6f78;
+    --line: #26262c;
+    --chip: #1c1c21;
+    --chip-hover: #26262c;
+    --solid: #ededf0;
+    --solid-text: #0e0e11;
+    --code-bg: #16161a;
+    --row-hi: rgba(46, 117, 182, 0.18);
+    --fig-bg: #ffffff;
+    --fig-pad: 8px;
+    --hl-a: #1f456e;
+    --hl-b: #6a3632;
+    --hl-blend: screen;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --link: #8faadc;
+  --ok: #8fbf6f;
+  --delta: #ff7a7a;
+  --bg: #0e0e11;
+  --text: #ededf0;
+  --text-2: #a3a3ad;
+  --text-3: #6f6f78;
+  --line: #26262c;
+  --chip: #1c1c21;
+  --chip-hover: #26262c;
+  --solid: #ededf0;
+  --solid-text: #0e0e11;
+  --code-bg: #16161a;
+  --row-hi: rgba(46, 117, 182, 0.18);
+  --fig-bg: #ffffff;
+  --fig-pad: 8px;
+  --hl-a: #1f456e;
+  --hl-b: #6a3632;
+  --hl-blend: screen;
+  color-scheme: dark;
+}
+
+/* ---------- Base ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 24px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--link);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.container {
+  max-width: var(--w-main);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.container.narrow {
+  max-width: var(--w-narrow);
+}
+
+/* 三个任务的配色，与论文插图一致：重建 = 可训练（玫瑰），感知 = 冻结语义（蓝），生成 = 深蓝 */
+.t-recon {
+  --task: var(--c-b);
+}
+
+.t-percep {
+  --task: var(--c-a);
+}
+
+.t-gen {
+  --task: var(--c-m);
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  text-align: center;
+  padding: 48px 0 8px;
+}
+
+.hero .container {
+  max-width: var(--w-wide);
+}
+
+.projlogo {
+  margin: 0 auto 24px;
+  max-width: 720px;
+}
+
+.title {
+  margin: 0 auto 28px;
+  max-width: 1080px;
+  font-size: clamp(30px, 4.1vw, 54px);
+  line-height: 1.18;
+  font-weight: 500;
+  letter-spacing: -0.022em;
+  color: var(--text-2);
+  text-wrap: balance;
+}
+
+.wordmark {
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  background: linear-gradient(90deg, var(--c-m) 0%, var(--c-a) 38%, var(--c-b) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.authors {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 30px;
+  margin: 0 auto 14px;
+  font-size: 19px;
+  line-height: 1.5;
+}
+
+/* 有个人主页链接的作者显示为蓝色，没有链接的用正文颜色 */
+.au a {
+  color: var(--link);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.au .nm {
+  color: var(--text);
+}
+
+.au a:hover {
+  color: var(--c-b);
+}
+
+.au sup,
+.equal sup {
+  font-size: 0.66em;
+  margin-left: 1px;
+}
+
+.au sup {
+  color: var(--text);
+}
+
+.equal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px 18px;
+  margin: 0 0 20px;
+  font-size: 14.5px;
+  color: var(--text-2);
+}
+
+.orgs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px 40px;
+  margin: 0 0 32px;
+}
+
+.org {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text);
+}
+
+.org sup {
+  align-self: flex-start;
+  font-size: 15px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.org img {
+  height: 44px;
+  width: auto;
+}
+
+/* 港中文校徽是盾形加飘带，同样高度下显得偏小，单独放大一点 */
+.org img.logo-lg {
+  height: 50px;
+}
+
+/* 中国移动研究院是横版 logo，边缘的波纹是渐隐的，需要更大一些才和其他 logo 看起来一样大 */
+.org img.logo-wide {
+  height: 64px;
+  margin: -10px 0;
+}
+
+.org-name {
+  margin-left: 6px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-2);
+  text-align: left;
+  line-height: 1.3;
+}
+
+.hero-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 48px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.btn:hover {
+  background: var(--chip-hover);
+}
+
+.btn-solid {
+  background: var(--solid);
+  color: var(--solid-text);
+}
+
+.btn-solid:hover {
+  background: var(--solid);
+  opacity: 0.85;
+}
+
+.btn:focus-visible,
+.copy-btn:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--c-a);
+  outline-offset: 2px;
+}
+
+.lede {
+  max-width: 880px;
+  margin: 0 auto 14px;
+  font-size: clamp(23px, 2.6vw, 34px);
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.kw-a {
+  color: var(--c-a);
+}
+
+.kw-b {
+  color: var(--c-b);
+}
+
+.kw-m {
+  color: var(--c-m);
+}
+
+.hero-body {
+  max-width: 720px;
+  margin: 0 auto 32px;
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--text-2);
+  text-wrap: pretty;
+}
+
+.hero-body strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.k3 {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* 关键数字：三格等宽，标签颜色对应导语里的三个任务 */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 760px;
+  margin: 0 auto;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.stat {
+  min-width: 0;
+  padding: 16px 12px 18px;
+}
+
+.stat + .stat {
+  border-left: 1px solid var(--line);
+}
+
+.stat dt {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--task);
+}
+
+.stat dd {
+  margin: 0;
+  color: var(--text-2);
+}
+
+.stat dd b {
+  display: block;
+  margin-top: 2px;
+  font-size: 38px;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--task);
+}
+
+.stat .stat-note {
+  font-size: 13.5px;
+  color: var(--text-3);
+}
+
+/* ---------- Sections ---------- */
+
+.sec {
+  padding: 56px 0 0;
+}
+
+.part-head {
+  margin: 0 0 20px;
+  font-size: clamp(26px, 2.6vw, 32px);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.sec-lede,
+.sub-lede {
+  max-width: var(--w-narrow);
+  margin: 0 0 20px;
+  color: var(--text-2);
+  text-wrap: pretty;
+}
+
+.sec-lede strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Results 下的小节标题，色块对应任务 */
+.sub-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 44px 0 6px;
+  font-size: 21px;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.sub-head::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--task, var(--text-3));
+}
+
+/* Method 及之后：标题和正文居左，图表居中 */
+.sec.left .part-head {
+  text-align: left;
+}
+
+.prose p {
+  margin: 0 0 1em;
+  color: var(--text-2);
+  text-align: justify;
+  hyphens: auto;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+.prose strong,
+.prose em {
+  color: var(--text);
+}
+
+.prose strong {
+  font-weight: 600;
+}
+
+/* ---------- Key takeaways ---------- */
+
+.takeaways {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: tk;
+}
+
+.takeaways li {
+  position: relative;
+  padding: 14px 0 14px 48px;
+  color: var(--text-2);
+  border-top: 1px solid var(--line);
+  counter-increment: tk;
+}
+
+.takeaways li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.takeaways li::before {
+  content: counter(tk, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-a);
+}
+
+.takeaways li:nth-child(even)::before {
+  color: var(--c-b);
+}
+
+.takeaways b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- Figures ---------- */
+
+figure {
+  margin: 0;
+}
+
+.fig + .fig {
+  margin-top: 40px;
+}
+
+/* 论文插图按 85% 宽度居中；暗色模式下留一圈白边 */
+.fig img {
+  width: 85%;
+  margin: 0 auto;
+  border-radius: 12px;
+  background: var(--fig-bg);
+  padding: var(--fig-pad);
+}
+
+figcaption,
+.caption {
+  max-width: var(--w-narrow);
+  margin: 12px auto 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--text-2);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+figcaption b,
+.caption b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- Tables ---------- */
+
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrap.narrow table {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+th,
+td {
+  padding: 7px 12px;
+  text-align: center;
+}
+
+th.left,
+td.left {
+  text-align: left;
+  font-variant-numeric: normal;
+}
+
+thead th {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-2);
+}
+
+thead {
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+}
+
+thead tr:first-child th[colspan] {
+  color: var(--task, var(--text));
+  border-bottom: 1px solid var(--line);
+}
+
+tbody tr + tr td {
+  border-top: 1px solid var(--line);
+}
+
+tbody {
+  border-bottom: 1px solid var(--text);
+}
+
+tr.ours td {
+  background: var(--row-hi);
+  font-weight: 600;
+}
+
+sup.delta {
+  margin-left: 2px;
+  font-size: 0.68em;
+  font-weight: 500;
+  color: var(--delta);
+}
+
+.delta-key {
+  color: var(--delta);
+}
+
+tr.group td {
+  padding-top: 10px;
+  padding-bottom: 3px;
+  text-align: left;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--text-3);
+}
+
+tbody tr.group + tr td {
+  border-top: 0;
+}
+
+tr.split td {
+  border-bottom: 1px solid var(--text-3);
+}
+
+/* ---------- Code / BibTeX ---------- */
+
+.code {
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px 6px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.code-lang {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text-3);
+  text-transform: lowercase;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-2);
+  font: 500 13px var(--font-sans);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.copy-btn:hover {
+  background: var(--chip-hover);
+  color: var(--text);
+}
+
+.copy-btn.copied {
+  color: var(--ok);
+}
+
+.code pre {
+  margin: 0;
+  padding: 16px 20px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 20px;
+  max-width: var(--w-main);
+  margin: 64px auto 0;
+  padding: 24px 24px 36px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--text-3);
+}
+
+.footer a {
+  color: var(--text-2);
+}
+
+/* ---------- 深色 / 浅色切换按钮 ---------- */
+
+.theme-btn {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--chip);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.2s ease;
+}
+
+.theme-btn:hover {
+  background: var(--chip-hover);
+}
+
+.theme-btn:active {
+  transform: scale(0.92);
+}
+
+.theme-btn:focus-visible {
+  outline: 2px solid var(--c-a);
+  outline-offset: 2px;
+}
+
+.theme-btn svg {
+  display: block;
+}
+
+.theme-btn svg[hidden] {
+  display: none;
+}
+
+/* 切换主题时短暂地让颜色过渡，而不是硬切 */
+.theme-anim,
+.theme-anim *,
+.theme-anim *::before,
+.theme-anim *::after {
+  transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease !important;
+}
+
+/* ---------- 选中文字的荧光笔效果 ---------- */
+
+/* 脚本就绪后隐藏原生选区，改由 .hl-layer 绘制 */
+.hl-ready ::selection {
+  background: transparent;
+}
+
+.hl-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  z-index: 20;
+  pointer-events: none;
+  /* 混合模式放在整层上，才能和下面的文字混合（子元素的混合会被这一层隔离） */
+  mix-blend-mode: var(--hl-blend);
+}
+
+.hl-layer i {
+  position: absolute;
+  border-radius: 3px 6px 4px 7px;
+  background: linear-gradient(90deg, var(--hl-a), var(--hl-b)) no-repeat;
+  background-size: 100vw 100%;
+  transform-origin: left center;
+  animation: hl-sweep 0.32s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes hl-sweep {
+  from {
+    transform: scaleX(0);
+    opacity: 0.4;
+  }
+
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* ---------- Left progress nav ---------- */
+
+.pnav {
+  --gap: 54px;
+  position: fixed;
+  left: 36px;
+  top: 50%;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--gap) - 16px);
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.pnav.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pnav-track {
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--line);
+  border-radius: 2px;
+}
+
+.pnav-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  background: linear-gradient(var(--c-a), var(--c-b));
+  clip-path: inset(0 0 var(--hide, 100%) 0);
+}
+
+.pnav a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 16px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.pnav b {
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.pnav b::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  transition: all 0.2s ease;
+}
+
+.pnav a.done b::before {
+  background: var(--c);
+  border-color: var(--c);
+}
+
+.pnav a.active b::before {
+  width: 16px;
+  height: 16px;
+  background: var(--c);
+  border-color: var(--c);
+}
+
+.pnav a span {
+  position: absolute;
+  left: 36px;
+  white-space: nowrap;
+  font-size: 15px;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.pnav a.active span,
+.pnav:hover a span {
+  opacity: 1;
+  transform: none;
+}
+
+.pnav:hover a:not(.active) span {
+  color: var(--text-2);
+}
+
+.pnav:hover::after {
+  /* 悬停时给标签一个背景，避免和正文重叠 */
+  content: "";
+  position: absolute;
+  inset: -16px -170px -16px -16px;
+  z-index: -1;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+/* 屏幕不够宽时隐藏，避免标签压到居左的正文 */
+@media (max-width: 1360px) {
+  .pnav {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .pnav,
+  .pnav b::before,
+  .pnav a span {
+    transition: none;
+  }
+
+  .hl-layer i {
+    animation: none;
+  }
+
+  .theme-anim,
+  .theme-anim *,
+  .theme-anim *::before,
+  .theme-anim *::after {
+    transition: none !important;
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 760px) {
+  body {
+    font-size: 16px;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .hero {
+    padding-top: 64px;
+  }
+
+  .title {
+    margin-bottom: 22px;
+  }
+
+  .authors {
+    gap: 4px 18px;
+    font-size: 17px;
+  }
+
+  .orgs {
+    gap: 10px 24px;
+    margin-bottom: 28px;
+  }
+
+  .org img {
+    height: 36px;
+  }
+
+  .org img.logo-lg {
+    height: 41px;
+  }
+
+  .org img.logo-wide {
+    height: 52px;
+    margin: -8px 0;
+  }
+
+  .org-name {
+    font-size: 16px;
+  }
+
+  .hero-links {
+    margin-bottom: 40px;
+  }
+
+  .btn {
+    height: 44px;
+    padding: 0 18px;
+    font-size: 16px;
+  }
+
+  .hero-body {
+    font-size: 16.5px;
+  }
+
+  .stat {
+    padding: 12px 6px 14px;
+  }
+
+  .stat dt {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+
+  .stat dd b {
+    font-size: 28px;
+  }
+
+  .stat dd,
+  .stat .stat-note {
+    font-size: 13px;
+  }
+
+  .sec {
+    padding-top: 44px;
+  }
+
+  .prose p {
+    text-align: left;
+  }
+
+  .fig img {
+    width: 100%;
+  }
+
+  .code pre {
+    font-size: 12.5px;
+    padding: 14px 16px;
+  }
+}
